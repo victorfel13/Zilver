@@ -1,27 +1,26 @@
-# Build + sube solo la carpeta dist/ a la rama gh-pages.
+# Build de producción → carpeta docs/ en main (para GitHub Pages).
+# Configura Pages: Settings → Pages → Branch: main → Folder: /docs
 #
-# En GitHub: Settings → Pages → Source: "Deploy from a branch"
-#            Branch: gh-pages  /  folder: / (root)   ← NO uses main
-#
-# Si el workflow no puede hacer push: Settings → Actions → General →
-# "Workflow permissions" → Read and write permissions.
+# El push del bot lleva [skip ci] y paths-ignore evita bucles.
+# Settings → Actions → General → Workflow permissions: Read and write.
 
-name: Deploy to GitHub Pages
+name: Publish site to docs
 
 on:
   push:
     branches: [main]
-  workflow_dispatch:
+    paths-ignore:
+      - 'docs/**'
 
 permissions:
   contents: write
 
 concurrency:
-  group: pages
+  group: publish-docs
   cancel-in-progress: true
 
 jobs:
-  build-and-deploy:
+  publish:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -34,14 +33,23 @@ jobs:
           cache: npm
 
       - name: Install and build
-        run: |
-          npm ci
-          npm run build
-          touch dist/.nojekyll
+        run: npm ci && npm run build
 
-      - name: Push dist to gh-pages branch
-        uses: peaceiris/actions-gh-pages@v4
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./dist
-          force_orphan: true
+      - name: Sync dist → docs
+        run: |
+          rm -rf docs
+          mkdir -p docs
+          cp -r dist/. docs/
+          touch docs/.nojekyll
+
+      - name: Commit and push docs
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A docs/
+          if git diff --staged --quiet; then
+            echo "No changes to docs"
+            exit 0
+          fi
+          git commit -m "chore(pages): update docs [skip ci]"
+          git push
