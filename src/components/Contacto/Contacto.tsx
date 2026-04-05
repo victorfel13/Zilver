@@ -25,29 +25,32 @@ export function Contacto() {
         flexDirection: 'column',
       }}
     >
-      <Stack
-        direction={{ xs: 'column', md: 'row' }}
-        spacing={{ xs: 4, md: 8 }}
+      <Box
         sx={{
           flex: 1,
+          display: 'grid',
           maxWidth: 1200,
           mx: 'auto',
-          pl: 2,
-          pr: { xs: 2, md: 0 },
+          px: 2,
           width: '100%',
-          alignItems: { xs: 'flex-start', md: 'stretch' },
+          minHeight: { xs: 'min(82vh, 580px)', md: 'min(560px, 65vh)' },
+          gridTemplateColumns: { xs: '1fr', md: 'minmax(0, 1fr) auto' },
+          gridTemplateRows: { xs: 'auto 1fr auto', md: '1fr' },
+          columnGap: { md: 4 },
         }}
       >
         <Typography
           component="h2"
           sx={{
+            gridColumn: 1,
+            gridRow: 1,
             fontWeight: 700,
             letterSpacing: '0.12em',
             fontSize: { xs: '2.2rem', md: '3.2rem' },
             lineHeight: 1,
-            mt: { xs: 4, md: 10 },
-            alignSelf: 'flex-start',
-            flexShrink: 0,
+            pt: { xs: 4, md: 10 },
+            alignSelf: 'start',
+            justifySelf: 'start',
           }}
         >
           {band.contactTitle}
@@ -56,13 +59,14 @@ export function Contacto() {
         <Stack
           spacing={2}
           sx={{
+            gridColumn: { xs: 1, md: 2 },
+            gridRow: { xs: 3, md: 1 },
             maxWidth: 380,
-            mt: { xs: 6, md: 0 },
-            ml: { xs: 0, md: 'auto' },
-            alignSelf: { xs: 'stretch', md: 'flex-end' },
-            textAlign: { xs: 'left', md: 'right' },
-            pb: { xs: 2, md: 3 },
-            transform: { md: 'translateX(24px)' },
+            width: '100%',
+            alignSelf: { xs: 'end', md: 'end' },
+            justifySelf: 'end',
+            textAlign: 'right',
+            pb: { xs: 3, md: 4 },
           }}
         >
           <Box>
@@ -85,23 +89,14 @@ export function Contacto() {
 
           <Box>
             <Typography sx={{ fontSize: '0.65rem', color: 'rgba(255,255,255,0.5)', letterSpacing: '0.1em' }}>
-              Redes sociales
-            </Typography>
-            <Typography sx={{ fontWeight: 600 }}>
-              {band.socialHandle}
-            </Typography>
-          </Box>
-
-          <Box>
-            <Typography sx={{ fontSize: '0.65rem', color: 'rgba(255,255,255,0.5)', letterSpacing: '0.1em' }}>
               Celular
             </Typography>
             <Link href={`tel:${band.phoneTel}`} color="inherit" sx={{ fontWeight: 600 }}>
-              {band.phone}
+              {band.phoneTel}
             </Link>
           </Box>
         </Stack>
-      </Stack>
+      </Box>
     </Box>
   )
 }

@@ -115,28 +115,44 @@ function ReleaseCard({
             sx={{
               width: { xs: 48, sm: 52 },
               height: { xs: 48, sm: 52 },
-              bgcolor: 'rgba(255,255,255,0.1)',
-              color: 'rgba(255,255,255,0.88)',
-              border: '1px solid rgba(255,255,255,0.18)',
-              backdropFilter: 'blur(6px)',
+              bgcolor: 'transparent',
+              color: '#fff',
+              border: 'none',
+              borderRadius: 0,
               '&:hover': {
-                bgcolor: 'rgba(255,255,255,0.16)',
-                borderColor: 'rgba(255,255,255,0.28)',
+                bgcolor: 'rgba(255,255,255,0.08)',
               },
             }}
           >
-            <Typography
-              component="span"
-              sx={{
-                fontSize: { xs: '1.35rem', sm: '1.45rem' },
-                lineHeight: 1,
-                ml: isPlaying ? 0 : '3px',
-                fontFamily: 'system-ui, sans-serif',
-                fontWeight: 300,
-              }}
-            >
-              {isPlaying ? '⏸' : '▶'}
-            </Typography>
+            {isPlaying ? (
+              <Box
+                component="span"
+                aria-hidden
+                sx={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '5px',
+                }}
+              >
+                <Box sx={{ width: 3, height: 16, bgcolor: '#fff', flexShrink: 0 }} />
+                <Box sx={{ width: 3, height: 16, bgcolor: '#fff', flexShrink: 0 }} />
+              </Box>
+            ) : (
+              <Typography
+                component="span"
+                sx={{
+                  fontSize: { xs: '1.35rem', sm: '1.45rem' },
+                  lineHeight: 1,
+                  ml: '3px',
+                  color: '#fff',
+                  fontFamily: 'system-ui, sans-serif',
+                  fontWeight: 300,
+                }}
+              >
+                ▶
+              </Typography>
+            )}
           </IconButton>
         </Box>
       ) : null}

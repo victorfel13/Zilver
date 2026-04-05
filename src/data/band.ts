@@ -3,7 +3,7 @@ export const band = {
   pressKit: 'PRESS KIT',
   bioTitle: 'BIOGRAFÍA',
   bioParagraphs: [
-    'Zilver es el proyecto musical de Silverio Suárez, compositor y artista audiovisual originario de Mérida, Yucatán. Trae una atmósfera mística de indie y synth rock alternativo. Sus seguidores han comentado que suena a una fusión de artistas como Siddhartha, New Order y Depeche Mode, con letras inspiradas en la ciencia ficción, el amor y el caos del mundo contemporáneo. Con más de 15 años de trayectoria en la escena yucateca, el exvocalista de la banda Monstruos, ahora en solista, se ha consolidado como un personaje en evolución dentro del panorama alternativo del sureste mexicano.',
+    'Zilver es el proyecto musical de Silverio Suárez, compositor y artista audiovisual originario de Mérida, Yucatán. Trae una atmósfera mística de indie y synth rock alternativo. Sus seguidores han comentado que suena a una fusión de artistas como Siddhartha, New Order y Depeche Mode, con letras inspiradas en la ciencia ficción, el amor y el caos del mundo contemporáneo. Con más de 15 años de trayectoria en la escena yucateca, el fundador de la banda Monstruos, ahora en solista, se ha consolidado como un personaje en evolución dentro del panorama alternativo del sureste mexicano.',
   ],
   liveTitle: 'EN VIVO',
   riderHint: '(Haz clic aquí para ver el Rider técnico / Input List)',
@@ -23,14 +23,14 @@ export const band = {
   email: 'zilvermusica@gmail.com',
   linktree: 'https://linktr.ee/zilvermusic',
   linktreeLabel: 'linktr.ee/zilvermusic',
-  socialHandle: '@zilvermusic',
-  phone: '+52 999 120 9764',
+
+  
   phoneTel: '+529991209764',
   city: 'Mérida, Yucatán',
   /** Enlaces para iconos del footer (ajusta URLs reales) */
   socialUrls: {
-    instagram: 'https://www.instagram.com/zilvermusic',
-    spotify: 'https://open.spotify.com/artist/zilver',
-    youtube: 'https://www.youtube.com/@zilvermusic',
+    instagram: 'https://www.instagram.com/zilvermusic/',
+    spotify: 'https://open.spotify.com/intl-es/artist/1Rlr3A38GZr5ovmi476y8p?si=d3kpPA_lRzGE5Xj7bg1qsg',
+    youtube: 'https://www.youtube.com/results?search_query=zilver+music',
   },
 } as const
