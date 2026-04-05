@@ -32,6 +32,8 @@ jobs:
         run: |
           npm ci
           npm run build
+          # Evita que Jekyll ignore archivos con _ en rutas de assets
+          touch dist/.nojekyll
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
