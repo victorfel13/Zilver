@@ -1,5 +1,11 @@
-# Despliega el sitio estático a GitHub Pages en cada push a main.
-# Pages → Source: GitHub Actions
+# Build + sube solo la carpeta dist/ a la rama gh-pages.
+#
+# En GitHub: Settings → Pages → Source: "Deploy from a branch"
+#            Branch: gh-pages  /  folder: / (root)   ← NO uses main
+#
+# Si el workflow no puede hacer push: Settings → Actions → General →
+# "Workflow permissions" → Read and write permissions.
+
 name: Deploy to GitHub Pages
 
 on:
@@ -8,16 +14,14 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
-  pages: write
-  id-token: write
+  contents: write
 
 concurrency:
   group: pages
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 jobs:
-  build:
+  build-and-deploy:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -35,22 +39,9 @@ jobs:
           npm run build
           touch dist/.nojekyll
 
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v4
+      - name: Push dist to gh-pages branch
+        uses: peaceiris/actions-gh-pages@v4
         with:
-          path: dist
-          include-hidden-files: true
-
-  deploy:
-    needs: build
-    runs-on: ubuntu-latest
-    permissions:
-      pages: write
-      id-token: write
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    steps:
-      - name: Deploy
-        id: deployment
-        uses: actions/deploy-pages@v4
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./dist
+          force_orphan: true
