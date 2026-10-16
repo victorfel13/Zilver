@@ -140,14 +140,15 @@ export function Navbar() {
                   onClick={() => goTo(id)}
                   aria-current={active ? 'true' : undefined}
                   sx={{
-                    color: '#fff',
                     fontSize: '0.65rem',
                     letterSpacing: '0.06em',
                     minWidth: 0,
                     borderRadius: 0,
                     px: 1.25,
                     py: 0.5,
-                    ...(active ? activeNavSx : { '&:hover': { bgcolor: 'rgba(255,255,255,0.08)' } }),
+                    ...(active
+                      ? activeNavSx
+                      : { color: '#fff', '&:hover': { bgcolor: 'rgba(255,255,255,0.08)' } }),
                   }}
                 >
                   {label}
