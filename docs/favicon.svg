@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64" role="img" aria-label="Z">
+  <rect width="64" height="64" fill="#000"/>
+  <!-- Barra top -->
+  <rect x="10" y="12" width="44" height="11" fill="#fff"/>
+  <!-- Barra bottom -->
+  <rect x="10" y="41" width="44" height="11" fill="#fff"/>
+  <!-- Diagonal: esquina superior-derecha → inferior-izquierda -->
+  <polygon points="42,23 54,23 22,41 10,41" fill="#fff"/>
+</svg>
