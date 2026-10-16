@@ -17,6 +17,7 @@ import navLogo from '../../assets/img/zilver-logo-white.webp'
 
 const items = [
   ['hero', 'Inicio'],
+  ['estreno', 'Estreno'],
   ['bio', 'Biografía'],
   ['lanzamientos', 'Lanzamientos'],
   ['videos', 'Videos'],
@@ -39,8 +40,16 @@ export function Navbar() {
 
   const goTo = useCallback((id: string) => {
     document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' })
+    window.history.replaceState(null, '', `#${id}`)
     setMobileOpen(false)
   }, [])
+
+  const estrenoNavSx = {
+    bgcolor: '#fff',
+    color: '#000',
+    fontWeight: 700,
+    '&:hover': { bgcolor: 'rgba(255,255,255,0.88)', color: '#000' },
+  } as const
 
   return (
     <Box
@@ -82,17 +91,33 @@ export function Navbar() {
         </ButtonBase>
 
         {isMdUp ? (
-          <Stack direction="row" flexWrap="wrap" useFlexGap spacing={0.5}>
-            {items.map(([id, label]) => (
-              <Button
-                key={id}
-                size="small"
-                onClick={() => goTo(id)}
-                sx={{ color: '#fff', fontSize: '0.65rem', letterSpacing: '0.06em', minWidth: 0 }}
-              >
-                {label}
-              </Button>
-            ))}
+          <Stack direction="row" flexWrap="wrap" useFlexGap spacing={0.5} alignItems="center">
+            {items.map(([id, label]) => {
+              const isEstreno = id === 'estreno'
+              return (
+                <Button
+                  key={id}
+                  size="small"
+                  onClick={() => goTo(id)}
+                  sx={{
+                    color: '#fff',
+                    fontSize: '0.65rem',
+                    letterSpacing: '0.06em',
+                    minWidth: 0,
+                    borderRadius: 0,
+                    ...(isEstreno
+                      ? {
+                          ...estrenoNavSx,
+                          px: 1.25,
+                          py: 0.5,
+                        }
+                      : null),
+                  }}
+                >
+                  {label}
+                </Button>
+              )
+            })}
           </Stack>
         ) : (
           <>
@@ -127,23 +152,34 @@ export function Navbar() {
               </Box>
               <Divider sx={{ borderColor: 'rgba(255,255,255,0.08)' }} />
               <List dense sx={{ py: 1 }}>
-                {items.map(([id, label]) => (
-                  <ListItemButton
-                    key={id}
-                    onClick={() => goTo(id)}
-                    sx={{
-                      py: 1.25,
-                      '&:hover': { bgcolor: 'rgba(255,255,255,0.06)' },
-                    }}
-                  >
-                    <ListItemText
-                      primary={label}
-                      primaryTypographyProps={{
-                        sx: { fontSize: '0.9rem', letterSpacing: '0.08em', color: 'rgba(255,255,255,0.92)' },
+                {items.map(([id, label]) => {
+                  const isEstreno = id === 'estreno'
+                  return (
+                    <ListItemButton
+                      key={id}
+                      onClick={() => goTo(id)}
+                      sx={{
+                        py: 1.25,
+                        mx: isEstreno ? 1 : 0,
+                        ...(isEstreno
+                          ? estrenoNavSx
+                          : { '&:hover': { bgcolor: 'rgba(255,255,255,0.06)' } }),
                       }}
-                    />
-                  </ListItemButton>
-                ))}
+                    >
+                      <ListItemText
+                        primary={label}
+                        primaryTypographyProps={{
+                          sx: {
+                            fontSize: '0.9rem',
+                            letterSpacing: '0.08em',
+                            color: isEstreno ? '#000' : 'rgba(255,255,255,0.92)',
+                            fontWeight: isEstreno ? 700 : 400,
+                          },
+                        }}
+                      />
+                    </ListItemButton>
+                  )
+                })}
               </List>
             </Drawer>
           </>

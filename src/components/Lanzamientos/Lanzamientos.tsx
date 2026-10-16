@@ -284,7 +284,7 @@ export function Lanzamientos() {
             color: 'rgba(255,255,255,0.5)',
           }}
         >
-          PRÓXIMAMENTE NUEVO MATERIAL EN 2026
+          WAITING FOR YOU — PRE-SAVE DISPONIBLE ARRIBA
         </Typography>
       </Box>
     </Box>
