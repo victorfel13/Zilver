@@ -79,6 +79,7 @@ export function PreSave() {
       id="estreno"
       component="section"
       sx={{
+        scrollMarginTop: { xs: '72px', sm: '96px' },
         py: { xs: 5, md: 7 },
         bgcolor: '#000',
         borderTop: '1px solid rgba(255,255,255,0.08)',

@@ -12,17 +12,35 @@ import { PreSave } from './components/PreSave/PreSave'
 import { Videos } from './components/Videos/Videos'
 import { PlaybackProvider } from './context/PlaybackContext'
 
-function AppContent() {
-  /** Solo si la URL trae #estreno (sticker / QR), scrollea a esa sección. */
-  useEffect(() => {
-    if (window.location.hash !== '#estreno') return
+function wantsEstrenoLanding() {
+  const path = window.location.pathname.replace(/\/$/, '')
+  const q = new URLSearchParams(window.location.search)
+  return window.location.hash === '#estreno' || path === '/estreno' || q.get('s') === 'estreno'
+}
 
-    const go = () => document.getElementById('estreno')?.scrollIntoView({ behavior: 'auto', block: 'start' })
-    go()
-    requestAnimationFrame(go)
-    // Por si el layout tarda (imágenes / sticky nav)
-    const t = window.setTimeout(go, 100)
-    return () => window.clearTimeout(t)
+function scrollToEstreno() {
+  document.getElementById('estreno')?.scrollIntoView({ behavior: 'auto', block: 'start' })
+}
+
+function AppContent() {
+  /** /estreno, ?s=estreno o #estreno → scrollea a la sección (con reintentos por layout). */
+  useEffect(() => {
+    if (!wantsEstrenoLanding()) return
+
+    if (window.location.hash !== '#estreno' || window.location.pathname !== '/') {
+      window.history.replaceState(null, '', '/#estreno')
+    }
+
+    scrollToEstreno()
+    const raf = requestAnimationFrame(scrollToEstreno)
+    const delays = [50, 150, 300, 600, 1200, 2000].map((ms) => window.setTimeout(scrollToEstreno, ms))
+    window.addEventListener('load', scrollToEstreno)
+
+    return () => {
+      cancelAnimationFrame(raf)
+      delays.forEach(clearTimeout)
+      window.removeEventListener('load', scrollToEstreno)
+    }
   }, [])
 
   return (
