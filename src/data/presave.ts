@@ -13,8 +13,11 @@ export const waitingForYouPresave = {
   bandcampLabel: 'Bandcamp',
   bandcampUrl: 'https://zilver.bandcamp.com/track/waiting-for-you',
   /**
-   * Link permanente para stickers / QR → sección #estreno del sitio.
-   * No vence: es la URL del hosting + ancla (mientras el sitio y el id existan).
+   * Link para compartir / stickers / QR.
+   * Usa /estreno (no #) para que WhatsApp muestre portada + descripción de la canción.
    */
-  siteEstrenoUrl: 'https://zilver-hosting.web.app/#estreno',
+  siteEstrenoUrl: 'https://zilver-hosting.web.app/estreno',
+  songShareDescription:
+    '"Waiting For You" es una canción que escribí recordando como anhelaba la vida con mi pareja antes si quiera que fueramos novios y lo bello cuando resulta por hacerse realidad. Es un track de Indie Pop Rock energizante y romántico que captura la adrenalina del anhelo mutuo. Fusiona sintetizadores pulsantes y cajas de ritmo al estilo New Order con la energía guitarrera de The Strokes, logrando un sonido dinámico que recuerda a un The Cure en su faceta más popera y bailable.',
 } as const
+
