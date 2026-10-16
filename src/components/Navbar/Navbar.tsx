@@ -12,7 +12,7 @@ import {
 } from '@mui/material'
 import { useTheme } from '@mui/material/styles'
 import useMediaQuery from '@mui/material/useMediaQuery'
-import { useCallback, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import navLogo from '../../assets/img/zilver-logo-white.webp'
 
 const items = [
@@ -25,6 +25,8 @@ const items = [
   ['contacto', 'Contacto'],
 ] as const
 
+type SectionId = (typeof items)[number][0]
+
 function MenuIcon() {
   return (
     <Box component="svg" width={24} height={24} viewBox="0 0 24 24" aria-hidden sx={{ fill: 'currentColor' }}>
@@ -33,18 +35,55 @@ function MenuIcon() {
   )
 }
 
+function resolveActiveFromScroll(): SectionId {
+  const offset = 120
+  let current: SectionId = items[0][0]
+  for (const [id] of items) {
+    const el = document.getElementById(id)
+    if (!el) continue
+    if (el.getBoundingClientRect().top - offset <= 0) current = id
+  }
+  return current
+}
+
 export function Navbar() {
   const theme = useTheme()
   const isMdUp = useMediaQuery(theme.breakpoints.up('md'))
   const [mobileOpen, setMobileOpen] = useState(false)
+  const [activeId, setActiveId] = useState<SectionId>(() => {
+    if (typeof window === 'undefined') return 'hero'
+    const hash = window.location.hash.replace('#', '') as SectionId
+    return items.some(([id]) => id === hash) ? hash : 'hero'
+  })
 
-  const goTo = useCallback((id: string) => {
+  useEffect(() => {
+    let ticking = false
+    const update = () => {
+      setActiveId(resolveActiveFromScroll())
+      ticking = false
+    }
+    const onScroll = () => {
+      if (ticking) return
+      ticking = true
+      requestAnimationFrame(update)
+    }
+    update()
+    window.addEventListener('scroll', onScroll, { passive: true })
+    window.addEventListener('resize', onScroll)
+    return () => {
+      window.removeEventListener('scroll', onScroll)
+      window.removeEventListener('resize', onScroll)
+    }
+  }, [])
+
+  const goTo = useCallback((id: SectionId) => {
+    setActiveId(id)
     document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' })
     window.history.replaceState(null, '', `#${id}`)
     setMobileOpen(false)
   }, [])
 
-  const estrenoNavSx = {
+  const activeNavSx = {
     bgcolor: '#fff',
     color: '#000',
     fontWeight: 700,
@@ -93,25 +132,22 @@ export function Navbar() {
         {isMdUp ? (
           <Stack direction="row" flexWrap="wrap" useFlexGap spacing={0.5} alignItems="center">
             {items.map(([id, label]) => {
-              const isEstreno = id === 'estreno'
+              const active = activeId === id
               return (
                 <Button
                   key={id}
                   size="small"
                   onClick={() => goTo(id)}
+                  aria-current={active ? 'true' : undefined}
                   sx={{
                     color: '#fff',
                     fontSize: '0.65rem',
                     letterSpacing: '0.06em',
                     minWidth: 0,
                     borderRadius: 0,
-                    ...(isEstreno
-                      ? {
-                          ...estrenoNavSx,
-                          px: 1.25,
-                          py: 0.5,
-                        }
-                      : null),
+                    px: 1.25,
+                    py: 0.5,
+                    ...(active ? activeNavSx : { '&:hover': { bgcolor: 'rgba(255,255,255,0.08)' } }),
                   }}
                 >
                   {label}
@@ -153,16 +189,19 @@ export function Navbar() {
               <Divider sx={{ borderColor: 'rgba(255,255,255,0.08)' }} />
               <List dense sx={{ py: 1 }}>
                 {items.map(([id, label]) => {
-                  const isEstreno = id === 'estreno'
+                  const active = activeId === id
                   return (
                     <ListItemButton
                       key={id}
                       onClick={() => goTo(id)}
+                      selected={active}
+                      aria-current={active ? 'true' : undefined}
                       sx={{
                         py: 1.25,
-                        mx: isEstreno ? 1 : 0,
-                        ...(isEstreno
-                          ? estrenoNavSx
+                        mx: 1,
+                        borderRadius: 0,
+                        ...(active
+                          ? activeNavSx
                           : { '&:hover': { bgcolor: 'rgba(255,255,255,0.06)' } }),
                       }}
                     >
@@ -172,8 +211,8 @@ export function Navbar() {
                           sx: {
                             fontSize: '0.9rem',
                             letterSpacing: '0.08em',
-                            color: isEstreno ? '#000' : 'rgba(255,255,255,0.92)',
-                            fontWeight: isEstreno ? 700 : 400,
+                            color: active ? '#000' : 'rgba(255,255,255,0.92)',
+                            fontWeight: active ? 700 : 400,
                           },
                         }}
                       />

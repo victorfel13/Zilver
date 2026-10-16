@@ -5,9 +5,9 @@ export const waitingForYouPresave = {
   eyebrow: 'Estreno',
   kicker: 'Nuevo sencillo · Zilver',
   blurb: 'Haz pre-save y la canción llegará sola a tu biblioteca el día del estreno.',
-  availableLabel: 'Disponible el 6 de noviembre',
-  /** Medianoche del 6 nov 2026 en Yucatán */
-  releaseAt: '2026-11-06T00:00:00-06:00',
+  availableLabel: 'Disponible el 24 de octubre',
+  /** Medianoche del 24 oct 2026 en Yucatán */
+  releaseAt: '2026-10-24T00:00:00-06:00',
   ctaLabel: 'Pre-Save',
   url: 'https://found.ee/4MD09y',
   bandcampLabel: 'Bandcamp',

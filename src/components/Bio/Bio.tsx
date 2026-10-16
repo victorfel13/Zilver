@@ -273,6 +273,9 @@ function BioGalleryAside() {
 
 const scrollAnchorSx = { scrollMarginTop: { xs: '72px', sm: '100px' } } as const
 
+/** Galería / carrusel de la bio — oculto por ahora; poner `true` para reactivar. */
+const SHOW_BIO_GALLERY = false
+
 export function Bio() {
   return (
     <Box
@@ -282,32 +285,34 @@ export function Bio() {
     >
       <Box
         sx={{
-          maxWidth: 1200,
+          maxWidth: SHOW_BIO_GALLERY ? 1200 : 720,
           mx: 'auto',
           px: 2,
           display: 'flex',
-          flexDirection: { xs: 'column', sm: 'row' },
+          flexDirection: { xs: 'column', sm: SHOW_BIO_GALLERY ? 'row' : 'column' },
           flexWrap: 'nowrap',
           alignItems: 'flex-start',
           gap: { xs: 3, sm: 4, md: 6 },
         }}
       >
-        <Box
-          id="galeria"
-          component="aside"
-          aria-label="Galería"
-          sx={{
-            ...scrollAnchorSx,
-            width: { xs: '100%', sm: '40%' },
-            minWidth: { sm: 260 },
-            maxWidth: { sm: 440 },
-            flexShrink: 0,
-            pr: { sm: 2 },
-            borderRight: { sm: '1px solid rgba(255,255,255,0.1)' },
-          }}
-        >
-          <BioGalleryAside />
-        </Box>
+        {SHOW_BIO_GALLERY ? (
+          <Box
+            id="galeria"
+            component="aside"
+            aria-label="Galería"
+            sx={{
+              ...scrollAnchorSx,
+              width: { xs: '100%', sm: '40%' },
+              minWidth: { sm: 260 },
+              maxWidth: { sm: 440 },
+              flexShrink: 0,
+              pr: { sm: 2 },
+              borderRight: { sm: '1px solid rgba(255,255,255,0.1)' },
+            }}
+          >
+            <BioGalleryAside />
+          </Box>
+        ) : null}
 
         <Stack
           component="article"
@@ -315,7 +320,7 @@ export function Bio() {
           sx={{
             flex: '1 1 auto',
             minWidth: 0,
-            width: { xs: '100%', sm: 'auto' },
+            width: '100%',
           }}
         >
           <Typography
