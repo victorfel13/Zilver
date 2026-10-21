@@ -9,6 +9,7 @@ import { Hero } from './components/Hero/Hero'
 import { Lanzamientos } from './components/Lanzamientos/Lanzamientos'
 import { Navbar } from './components/Navbar/Navbar'
 import { PreSave } from './components/PreSave/PreSave'
+import { FloatingSocials } from './components/SocialLinks'
 import { Videos } from './components/Videos/Videos'
 import { PlaybackProvider } from './context/PlaybackContext'
 
@@ -53,6 +54,7 @@ function AppContent() {
       }}
     >
       <Navbar />
+      <FloatingSocials />
       <Hero />
       <PreSave />
       <Bio />

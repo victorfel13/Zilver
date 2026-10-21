@@ -14,6 +14,7 @@ import { useTheme } from '@mui/material/styles'
 import useMediaQuery from '@mui/material/useMediaQuery'
 import { useCallback, useEffect, useState } from 'react'
 import navLogo from '../../assets/img/zilver-logo-white.webp'
+import { SocialLinks } from '../SocialLinks'
 
 const items = [
   ['hero', 'Inicio'],
@@ -128,6 +129,8 @@ export function Navbar() {
             }}
           />
         </ButtonBase>
+
+        {!isMdUp && <SocialLinks compact />}
 
         {isMdUp ? (
           <Stack direction="row" flexWrap="wrap" useFlexGap spacing={0.5} alignItems="center">
