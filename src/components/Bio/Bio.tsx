@@ -788,12 +788,6 @@ export function Bio() {
         >
           {/* Encabezado */}
           <Box sx={{ gridArea: 'head' }}>
-            <Stack direction="row" alignItems="center" spacing={1.5} sx={{ mb: 2 }}>
-              <Box aria-hidden sx={{ width: 32, height: '1px', bgcolor: 'rgba(255,255,255,0.6)' }} />
-              <Typography sx={{ fontSize: '0.65rem', fontWeight: 600, letterSpacing: '0.28em', color: muted }}>
-                PRESS KIT · {band.city.toUpperCase()}
-              </Typography>
-            </Stack>
             <Typography
               component="h2"
               sx={{ fontWeight: 700, letterSpacing: '0.2em', fontSize: { xs: '1.75rem', md: '2.4rem' }, lineHeight: 1.1 }}
@@ -835,7 +829,7 @@ export function Bio() {
               </Typography>
             ))}
 
-            <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1.5} sx={{ pt: 1 }}>
+            <Stack direction="row" justifyContent="center" sx={{ pt: 1 }}>
               <Button
                 href="#contacto"
                 disableElevation
@@ -853,23 +847,6 @@ export function Bio() {
                 }}
               >
                 Booking / Contacto
-              </Button>
-              <Button
-                href="#envivo"
-                variant="outlined"
-                sx={{
-                  color: '#fff',
-                  borderColor: 'rgba(255,255,255,0.35)',
-                  fontWeight: 600,
-                  letterSpacing: '0.14em',
-                  fontSize: '0.72rem',
-                  px: 3,
-                  py: 1.4,
-                  borderRadius: '2px',
-                  '&:hover': { borderColor: '#fff', bgcolor: 'rgba(255,255,255,0.06)' },
-                }}
-              >
-                Formatos en vivo
               </Button>
             </Stack>
           </Stack>
