@@ -44,11 +44,12 @@ export function getYouTubeThumbnailUrl(videoId: string, quality: 'hq' | 'max' = 
   return `https://img.youtube.com/vi/${videoId}/${file}`
 }
 
-export function getYouTubeEmbedSrc(videoId: string, autoplay = true): string {
+export function getYouTubeEmbedSrc(videoId: string, autoplay = true, muted = false): string {
   const params = new URLSearchParams({
     rel: '0',
     modestbranding: '1',
     ...(autoplay ? { autoplay: '1' } : {}),
+    ...(muted ? { mute: '1', playsinline: '1' } : {}),
   })
   return `https://www.youtube.com/embed/${videoId}?${params.toString()}`
 }

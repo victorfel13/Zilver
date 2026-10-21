@@ -1,7 +1,127 @@
 import { Box, Dialog, DialogContent, IconButton, Stack, Typography } from '@mui/material'
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { band } from '../../data/band'
 import { galleryItems, galleryItemsSourceMode } from '../../data/galleryItemsSource'
+import { getYouTubeEmbedSrc, getYouTubeThumbnailUrl, getYouTubeVideoId } from '../../utils/youtube'
+
+const BIO_VIDEO_URL = 'https://www.youtube.com/watch?v=hYe6BNhS4qU'
+
+function BioVideo() {
+  const wrapRef = useRef<HTMLDivElement>(null)
+  const [shouldPlay, setShouldPlay] = useState(false)
+  const videoId = getYouTubeVideoId(BIO_VIDEO_URL)
+
+  useEffect(() => {
+    if (!videoId || shouldPlay) return
+    const node = wrapRef.current
+    if (!node) return
+
+    if (!('IntersectionObserver' in window)) {
+      setShouldPlay(true)
+      return
+    }
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setShouldPlay(true)
+          observer.disconnect()
+        }
+      },
+      { threshold: 0.35 },
+    )
+
+    observer.observe(node)
+    return () => observer.disconnect()
+  }, [videoId, shouldPlay])
+
+  if (!videoId) return null
+
+  return (
+    <Box sx={{ mt: 1, width: '100%' }}>
+      <Box
+        ref={wrapRef}
+        sx={{
+          position: 'relative',
+          width: '100%',
+          aspectRatio: '16 / 9',
+          bgcolor: '#0d0d0d',
+          border: '1px solid rgba(255,255,255,0.12)',
+          overflow: 'hidden',
+        }}
+      >
+        {shouldPlay ? (
+          <Box
+            component="iframe"
+            src={getYouTubeEmbedSrc(videoId, true, true)}
+            title="Video de Zilver"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+            allowFullScreen
+            referrerPolicy="strict-origin-when-cross-origin"
+            sx={{
+              position: 'absolute',
+              inset: 0,
+              width: '100%',
+              height: '100%',
+              border: 0,
+              display: 'block',
+            }}
+          />
+        ) : (
+          <>
+            <Box
+              component="img"
+              src={getYouTubeThumbnailUrl(videoId, 'hq')}
+              alt=""
+              loading="lazy"
+              sx={{
+                position: 'absolute',
+                inset: 0,
+                width: '100%',
+                height: '100%',
+                objectFit: 'cover',
+                display: 'block',
+              }}
+            />
+            <Box
+              aria-hidden
+              sx={{
+                position: 'absolute',
+                inset: 0,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                bgcolor: 'rgba(0,0,0,0.28)',
+              }}
+            >
+              <Typography
+                component="span"
+                sx={{
+                  width: 58,
+                  height: 58,
+                  borderRadius: '50%',
+                  bgcolor: 'rgba(0,0,0,0.62)',
+                  border: '1px solid rgba(255,255,255,0.4)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: '1.35rem',
+                  pl: '4px',
+                  color: '#fff',
+                }}
+              >
+                ▶
+              </Typography>
+            </Box>
+          </>
+        )}
+      </Box>
+      <Typography sx={{ mt: 1, fontSize: '0.68rem', letterSpacing: '0.04em', color: 'rgba(255,255,255,0.45)' }}>
+        El video comienza automáticamente en silencio al llegar a esta parte; activa el sonido desde los controles de YouTube.
+      </Typography>
+    </Box>
+  )
+}
 
 function BioGalleryAside() {
   const items = galleryItems
@@ -346,6 +466,7 @@ export function Bio() {
               {p}
             </Typography>
           ))}
+          <BioVideo />
         </Stack>
       </Box>
     </Box>
