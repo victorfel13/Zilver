@@ -3,7 +3,7 @@ export const band = {
   pressKit: 'PRESS KIT',
   bioTitle: 'BIOGRAFÍA',
   bioParagraphs: [
-    'Zilver es el proyecto musical de Silverio Suárez, compositor y artista audiovisual originario de Mérida, Yucatán. Trae una atmósfera mística de indie y synth rock alternativo. Sus seguidores han comentado que suena a una fusión de artistas como Siddhartha, New Order y Depeche Mode, con letras inspiradas en la ciencia ficción, el amor y el caos del mundo contemporáneo. Con más de 15 años de trayectoria en la escena yucateca, el fundador de la banda Monstruos, ahora en solista, se ha consolidado como un personaje en evolución dentro del panorama alternativo del sureste mexicano.',
+    'Zilver es el proyecto musical de Silverio Suárez, compositor y artista audiovisual originario de Mérida, Yucatán. Trae una atmósfera mística de indie y synth rock alternativo. Sus seguidores han comentado que suena a una fusión de artistas como New Order y Depeche Mode Yucateco, con letras inspiradas en la ciencia ficción, el amor y el caos del mundo contemporáneo. Con más de 15 años de trayectoria en la escena yucateca, el fundador de la banda Monstruos, ahora en solista, se ha consolidado como un personaje en evolución dentro del panorama alternativo del sureste mexicano.',
   ],
   liveTitle: 'EN VIVO',
   riderHint: '(Haz clic aquí para ver el Rider técnico / Input List)',

@@ -1,24 +1,44 @@
 import { Box, Link, Stack, Typography } from '@mui/material'
 import { band } from '../../data/band'
-import liveImage from '../../assets/img/live.webp'
+import liveImage1 from '../../assets/img/live-1.webp'
+import liveImage2 from '../../assets/img/live-2.webp'
+import liveImage3 from '../../assets/img/live-3.webp'
+
+const liveImages = [
+  { src: liveImage1, alt: 'Zilver cantando en vivo frente al público' },
+  { src: liveImage2, alt: 'Zilver en el escenario de Indie Fest' },
+  { src: liveImage3, alt: 'Zilver cantando en vivo' },
+] as const
 
 export function EnVivo() {
   return (
     <Box id="envivo" component="section" sx={{ py: { xs: 5, md: 8 }, bgcolor: '#000' }}>
       <Stack spacing={4} sx={{ maxWidth: 1200, mx: 'auto', px: 2 }}>
         <Box
-          component="img"
-          src={liveImage}
-          alt="En vivo"
           sx={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(3, minmax(0, 1fr))',
+            gap: { xs: 1, md: 2 },
             width: '100%',
-            display: 'block',
-            minHeight: { xs: 200, md: 300 },
-            objectFit: 'cover',
-            bgcolor: '#0d0d0d',
-            border: '1px dashed rgba(255,255,255,0.12)',
           }}
-        />
+        >
+          {liveImages.map((image) => (
+            <Box
+              key={image.src}
+              component="img"
+              src={image.src}
+              alt={image.alt}
+              loading="lazy"
+              sx={{
+                width: '100%',
+                aspectRatio: '2 / 3',
+                display: 'block',
+                objectFit: 'cover',
+                bgcolor: '#0d0d0d',
+              }}
+            />
+          ))}
+        </Box>
 
         <Stack
           direction={{ xs: 'column', md: 'row' }}

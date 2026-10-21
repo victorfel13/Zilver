@@ -6,8 +6,8 @@ export const videoTiles = [
 ] as const
 
 export const videoFeatured = {
-  id: 'moonlight',
-  label: 'MOONLIGHT DANCE',
+  id: 'savia',
+  label: 'SAVIA',
   /** Misma idea que en videoTiles: URL de YouTube (watch, embed o youtu.be) */
-  url: 'https://www.youtube.com/watch?v=JjshrCLSgxg',
+  url: 'https://www.youtube.com/watch?v=9X9DgiSo7JQ',
 } as const
