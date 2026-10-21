@@ -77,12 +77,12 @@ export function SocialLinks({ overlay = false, direction = 'row', compact = fals
             sx={{
               color: overlay ? '#fff' : 'rgba(255,255,255,0.85)',
               fontSize: compact
-                ? '1.05rem'
+                ? '1.3rem'
                 : overlay
                   ? { xs: '1.2rem', sm: '1.5rem', md: '1.75rem', lg: '2rem' }
                   : '1.375rem',
-              width: compact ? 30 : overlay ? { xs: 38, sm: 48, md: 56, lg: 64 } : 42,
-              height: compact ? 30 : overlay ? { xs: 38, sm: 48, md: 56, lg: 64 } : 42,
+              width: compact ? 36 : overlay ? { xs: 38, sm: 48, md: 56, lg: 64 } : 42,
+              height: compact ? 36 : overlay ? { xs: 38, sm: 48, md: 56, lg: 64 } : 42,
               '&:hover': {
                 color: '#fff',
                 bgcolor: 'rgba(255,255,255,0.16)',
