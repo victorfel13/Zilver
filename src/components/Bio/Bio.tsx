@@ -1,8 +1,76 @@
-import { Box, Button, Dialog, DialogContent, IconButton, Stack, Typography } from '@mui/material'
+import { Box, Button, Dialog, DialogContent, IconButton, Slider, Stack, Typography } from '@mui/material'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { band } from '../../data/band'
 import { galleryItems, galleryItemsSourceMode } from '../../data/galleryItemsSource'
-import { getYouTubeEmbedSrc, getYouTubeThumbnailUrl, getYouTubeVideoId } from '../../utils/youtube'
+import { getYouTubeThumbnailUrl, getYouTubeVideoId } from '../../utils/youtube'
+
+type YouTubePlayer = {
+  playVideo: () => void
+  pauseVideo: () => void
+  mute: () => void
+  unMute: () => void
+  isMuted: () => boolean
+  setVolume: (volume: number) => void
+  seekTo: (seconds: number, allowSeekAhead: boolean) => void
+  getCurrentTime: () => number
+  getDuration: () => number
+  destroy: () => void
+}
+
+declare global {
+  interface Window {
+    YT?: { Player: new (...args: unknown[]) => YouTubePlayer }
+    onYouTubeIframeAPIReady?: () => void
+  }
+}
+
+let ytApiPromise: Promise<NonNullable<Window['YT']>> | null = null
+
+function loadYouTubeApi() {
+  if (window.YT?.Player) return Promise.resolve(window.YT)
+  if (ytApiPromise) return ytApiPromise
+
+  ytApiPromise = new Promise((resolve) => {
+    const previous = window.onYouTubeIframeAPIReady
+    window.onYouTubeIframeAPIReady = () => {
+      previous?.()
+      if (window.YT) resolve(window.YT)
+    }
+    const script = document.createElement('script')
+    script.src = 'https://www.youtube.com/iframe_api'
+    script.async = true
+    document.head.appendChild(script)
+  })
+  return ytApiPromise
+}
+
+function formatTime(seconds: number) {
+  if (!Number.isFinite(seconds) || seconds <= 0) return '0:00'
+  const total = Math.floor(seconds)
+  const mins = Math.floor(total / 60)
+  const secs = total % 60
+  return `${mins}:${String(secs).padStart(2, '0')}`
+}
+
+const controlPaths = {
+  play: 'M8 5v14l11-7z',
+  pause: 'M6 4h4v16H6V4zm8 0h4v16h-4V4z',
+  replay:
+    'M12 5V1L7 6l5 5V7c3.31 0 6 2.69 6 6s-2.69 6-6 6-6-2.69-6-6H4c0 4.42 3.58 8 8 8s8-3.58 8-8-3.58-8-8-8z',
+  volumeOff:
+    'M3 9v6h4l5 5V4L7 9H3zm13.59 3L19 9.59 17.59 8.17 15.17 10.6 12.76 8.17 11.34 9.59 13.76 12l-2.42 2.41 1.42 1.42 2.41-2.42 2.42 2.42L19 14.41 16.59 12z',
+  volumeUp:
+    'M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z',
+  fullscreen: 'M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z',
+} as const
+
+function ControlGlyph({ path }: { path: string }) {
+  return (
+    <Box component="svg" viewBox="0 0 24 24" aria-hidden sx={{ width: 20, height: 20, fill: 'currentColor', display: 'block' }}>
+      <path d={path} />
+    </Box>
+  )
+}
 
 const BIO_VIDEO_URL = 'https://www.youtube.com/watch?v=hYe6BNhS4qU'
 
@@ -11,7 +79,6 @@ const BIO_FACTS = [
   { label: 'Trayectoria', value: '+15 años', detail: 'en la escena yucateca' },
   { label: 'Origen', value: 'Mérida, Yucatán', detail: 'Sureste mexicano' },
   { label: 'Género', value: 'Indie · Synth rock', detail: 'Alternativo, atmósfera mística' },
-  { label: 'Para fans de', value: 'Siddhartha', detail: 'New Order · Depeche Mode' },
 ] as const
 
 const muted = 'rgba(255,255,255,0.55)'
@@ -33,34 +100,79 @@ type YTState = -1 | 0 | 1 | 2 | 3 | 5
  */
 function BioVideo() {
   const wrapRef = useRef<HTMLDivElement>(null)
-  const iframeRef = useRef<HTMLIFrameElement>(null)
+  const playerHostRef = useRef<HTMLDivElement>(null)
+  const playerRef = useRef<YouTubePlayer | null>(null)
   const playerState = useRef<YTState>(-1)
   const autoPaused = useRef(false)
   const noObserver = typeof window !== 'undefined' && !('IntersectionObserver' in window)
   const mountedRef = useRef(noObserver)
   const [shouldPlay, setShouldPlay] = useState(noObserver)
+  const [playerReady, setPlayerReady] = useState(false)
+  const [isPlaying, setIsPlaying] = useState(false)
+  const [isMutedUi, setIsMutedUi] = useState(true)
+  const [currentTime, setCurrentTime] = useState(0)
+  const [duration, setDuration] = useState(0)
   const videoId = getYouTubeVideoId(BIO_VIDEO_URL)
 
-  const command = useCallback((func: 'playVideo' | 'pauseVideo') => {
-    iframeRef.current?.contentWindow?.postMessage(JSON.stringify({ event: 'command', func, args: [] }), '*')
-  }, [])
-
-  // Escucha el estado del reproductor (enablejsapi=1)
   useEffect(() => {
-    const onMessage = (e: MessageEvent) => {
-      if (!/^https:\/\/www\.youtube(-nocookie)?\.com$/.test(e.origin)) return
-      if (e.source !== iframeRef.current?.contentWindow) return
-      try {
-        const data = typeof e.data === 'string' ? JSON.parse(e.data) : e.data
-        const state = data?.info?.playerState
-        if (typeof state === 'number') playerState.current = state as YTState
-      } catch {
-        /* mensaje ajeno */
-      }
+    if (!shouldPlay || !videoId) return
+    let cancelled = false
+
+    loadYouTubeApi().then((YT) => {
+      if (cancelled || !playerHostRef.current) return
+      playerRef.current = new YT.Player(playerHostRef.current, {
+        videoId,
+        host: 'https://www.youtube-nocookie.com',
+        width: '100%',
+        height: '100%',
+        playerVars: {
+          autoplay: 1,
+          mute: 1,
+          controls: 0,
+          modestbranding: 1,
+          rel: 0,
+          playsinline: 1,
+          disablekb: 1,
+          iv_load_policy: 3,
+        },
+        events: {
+          onReady: (event: { target: YouTubePlayer }) => {
+            event.target.mute()
+            event.target.playVideo()
+            if (!cancelled) {
+              setPlayerReady(true)
+              setIsMutedUi(true)
+              setDuration(event.target.getDuration() || 0)
+            }
+          },
+          onStateChange: (event: { data: number; target: YouTubePlayer }) => {
+            playerState.current = event.data as YTState
+            setIsPlaying(event.data === 1)
+            setDuration(event.target.getDuration() || 0)
+          },
+        },
+      } as unknown as Record<string, unknown>)
+    })
+
+    return () => {
+      cancelled = true
+      playerRef.current?.destroy()
+      playerRef.current = null
+      setPlayerReady(false)
     }
-    window.addEventListener('message', onMessage)
-    return () => window.removeEventListener('message', onMessage)
-  }, [])
+  }, [shouldPlay, videoId])
+
+  useEffect(() => {
+    if (!playerReady) return
+    const id = window.setInterval(() => {
+      const player = playerRef.current
+      if (!player) return
+      setCurrentTime(player.getCurrentTime() || 0)
+      setDuration(player.getDuration() || 0)
+      setIsMutedUi(player.isMuted())
+    }, 500)
+    return () => window.clearInterval(id)
+  }, [playerReady])
 
   useEffect(() => {
     if (!videoId) return
@@ -78,11 +190,11 @@ function BioVideo() {
             setShouldPlay(true)
           } else if (autoPaused.current) {
             autoPaused.current = false
-            command('playVideo')
+            playerRef.current?.playVideo()
           }
         } else if (!entry.isIntersecting && playerState.current === 1) {
           autoPaused.current = true
-          command('pauseVideo')
+          playerRef.current?.pauseVideo()
         }
       },
       { threshold: [0, 0.35] },
@@ -90,12 +202,39 @@ function BioVideo() {
 
     observer.observe(node)
     return () => observer.disconnect()
-  }, [videoId, command])
+  }, [videoId])
 
   if (!videoId) return null
 
-  const origin = typeof window !== 'undefined' ? window.location.origin : ''
-  const src = `${getYouTubeEmbedSrc(videoId, true, true)}&enablejsapi=1&origin=${encodeURIComponent(origin)}`
+  const togglePlay = () => {
+    const player = playerRef.current
+    if (!player) return
+    if (playerState.current === 1) player.pauseVideo()
+    else player.playVideo()
+  }
+
+  const toggleMute = () => {
+    const player = playerRef.current
+    if (!player) return
+    if (player.isMuted()) {
+      player.unMute()
+      player.setVolume(100)
+      setIsMutedUi(false)
+    } else {
+      player.mute()
+      setIsMutedUi(true)
+    }
+  }
+
+  const handleSeek = (_event: Event, value: number | number[]) => {
+    const seconds = Array.isArray(value) ? (value[0] ?? 0) : value
+    setCurrentTime(seconds)
+    playerRef.current?.seekTo(seconds, true)
+  }
+
+  const toggleFullscreen = () => {
+    wrapRef.current?.requestFullscreen?.().catch(() => {})
+  }
 
   return (
     <Box sx={{ width: '100%' }}>
@@ -151,17 +290,12 @@ function BioVideo() {
       >
         {shouldPlay ? (
           <Box
-            component="iframe"
-            ref={iframeRef}
-            src={src}
-            title="Video de Zilver"
-            onLoad={() =>
-              iframeRef.current?.contentWindow?.postMessage(JSON.stringify({ event: 'listening', id: 'zilver-bio' }), '*')
-            }
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-            allowFullScreen
-            referrerPolicy="strict-origin-when-cross-origin"
-            sx={{ position: 'absolute', inset: 0, width: '100%', height: '100%', border: 0, display: 'block' }}
+            ref={playerHostRef}
+            sx={{
+              position: 'absolute',
+              inset: 0,
+              '& iframe': { width: '100%', height: '100%', display: 'block', border: 0 },
+            }}
           />
         ) : (
           <>
@@ -205,6 +339,67 @@ function BioVideo() {
           </>
         )}
       </Box>
+
+      <Stack direction="row" alignItems="center" spacing={{ xs: 0.5, sm: 1 }} sx={{ mt: 1.25, px: 0.25 }}>
+        <IconButton
+          type="button"
+          onClick={togglePlay}
+          disabled={!playerReady}
+          aria-label={isPlaying ? 'Pausar video' : 'Reproducir video'}
+          sx={{ color: '#fff', '&.Mui-disabled': { color: 'rgba(255,255,255,0.3)' } }}
+        >
+          <ControlGlyph path={isPlaying ? controlPaths.pause : controlPaths.play} />
+        </IconButton>
+        <IconButton
+          type="button"
+          onClick={() => playerRef.current?.seekTo(0, true)}
+          disabled={!playerReady}
+          aria-label="Reiniciar video"
+          sx={{ color: '#fff', '&.Mui-disabled': { color: 'rgba(255,255,255,0.3)' } }}
+        >
+          <ControlGlyph path={controlPaths.replay} />
+        </IconButton>
+        <IconButton
+          type="button"
+          onClick={toggleMute}
+          disabled={!playerReady}
+          aria-label={isMutedUi ? 'Activar sonido' : 'Silenciar video'}
+          sx={{ color: '#fff', '&.Mui-disabled': { color: 'rgba(255,255,255,0.3)' } }}
+        >
+          <ControlGlyph path={isMutedUi ? controlPaths.volumeOff : controlPaths.volumeUp} />
+        </IconButton>
+
+        <Typography sx={{ fontSize: '0.7rem', color: muted, whiteSpace: 'nowrap', minWidth: 76, textAlign: 'center' }}>
+          {formatTime(currentTime)} / {formatTime(duration)}
+        </Typography>
+
+        <Slider
+          value={Math.min(currentTime, duration || 0)}
+          min={0}
+          max={duration || 0}
+          step={0.1}
+          onChange={handleSeek}
+          disabled={!playerReady || duration <= 0}
+          aria-label="Progreso del video"
+          sx={{
+            flex: 1,
+            color: '#fff',
+            height: 4,
+            '& .MuiSlider-thumb': { width: 12, height: 12 },
+            '& .MuiSlider-rail': { opacity: 0.28 },
+          }}
+        />
+
+        <IconButton
+          type="button"
+          onClick={toggleFullscreen}
+          disabled={!playerReady}
+          aria-label="Pantalla completa"
+          sx={{ color: '#fff', '&.Mui-disabled': { color: 'rgba(255,255,255,0.3)' } }}
+        >
+          <ControlGlyph path={controlPaths.fullscreen} />
+        </IconButton>
+      </Stack>
     </Box>
   )
 }
@@ -489,7 +684,7 @@ function BioFacts() {
       sx={{
         m: 0,
         display: 'grid',
-        gridTemplateColumns: { xs: '1fr 1fr', md: 'repeat(4, 1fr)' },
+        gridTemplateColumns: { xs: '1fr 1fr', md: 'repeat(3, 1fr)' },
         borderTop: `1px solid ${hairline}`,
         borderLeft: { md: `1px solid ${hairline}` },
       }}
@@ -569,11 +764,19 @@ export function Bio() {
         {band.name.toUpperCase()}
       </Typography>
 
-      <Box sx={{ position: 'relative', maxWidth: 1200, mx: 'auto', px: 2 }}>
+      <Box
+        sx={{
+          position: 'relative',
+          maxWidth: 1560,
+          mx: 'auto',
+          pl: { xs: 2, md: 'clamp(24px, 4vw, 64px)' },
+          pr: { xs: 2, md: 'clamp(96px, 8vw, 136px)' },
+        }}
+      >
         <Box
           sx={{
             display: 'grid',
-            gridTemplateColumns: { xs: '1fr', md: 'minmax(0, 5fr) minmax(0, 7fr)' },
+            gridTemplateColumns: { xs: '1fr', md: 'minmax(0, 0.82fr) minmax(0, 1.38fr)' },
             gridTemplateAreas: {
               xs: '"head" "video" "text"',
               md: '"head video" "text video"',
