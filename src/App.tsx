@@ -3,6 +3,7 @@ import { useEffect } from 'react'
 import { Bio } from './components/Bio/Bio'
 import { Contacto } from './components/Contacto/Contacto'
 import { EnVivo } from './components/EnVivo/EnVivo'
+import { Fechas } from './components/Fechas/Fechas'
 import { Footer } from './components/Footer/Footer'
 import { GlobalPlayer } from './components/GlobalPlayer/GlobalPlayer'
 import { Hero } from './components/Hero/Hero'
@@ -58,6 +59,7 @@ function AppContent() {
       <Hero />
       <PreSave />
       <Bio />
+      <Fechas />
       <Lanzamientos />
       <Videos />
       <EnVivo />

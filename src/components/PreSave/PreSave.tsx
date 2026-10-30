@@ -1,67 +1,8 @@
 import { Box, Button, Stack, Typography } from '@mui/material'
-import { useEffect, useState } from 'react'
 import coverWaiting from '../../assets/releases/cover/waiting-for-you.webp'
 import { waitingForYouPresave as track } from '../../data/presave'
 
-type Countdown = { days: number; hours: number; minutes: number; seconds: number }
-
-function getCountdown(targetMs: number, nowMs: number): Countdown {
-  const diff = Math.max(0, targetMs - nowMs)
-  const days = Math.floor(diff / 86_400_000)
-  const hours = Math.floor((diff % 86_400_000) / 3_600_000)
-  const minutes = Math.floor((diff % 3_600_000) / 60_000)
-  const seconds = Math.floor((diff % 60_000) / 1000)
-  return { days, hours, minutes, seconds }
-}
-
-function pad2(n: number) {
-  return String(n).padStart(2, '0')
-}
-
-function CountdownBlock({ value, label }: { value: string; label: string }) {
-  return (
-    <Box sx={{ textAlign: 'center', minWidth: { xs: 52, sm: 60 } }}>
-      <Typography
-        component="span"
-        sx={{
-          display: 'block',
-          fontFamily: '"Bebas Neue", sans-serif',
-          fontSize: { xs: '1.75rem', md: '2.1rem' },
-          lineHeight: 1,
-          letterSpacing: '0.04em',
-          color: '#fff',
-        }}
-      >
-        {value}
-      </Typography>
-      <Typography
-        component="span"
-        sx={{
-          display: 'block',
-          mt: 0.5,
-          fontSize: '0.62rem',
-          letterSpacing: '0.16em',
-          textTransform: 'uppercase',
-          color: 'rgba(255,255,255,0.45)',
-        }}
-      >
-        {label}
-      </Typography>
-    </Box>
-  )
-}
-
 export function PreSave() {
-  const targetMs = new Date(track.releaseAt).getTime()
-  const [now, setNow] = useState(() => Date.now())
-
-  useEffect(() => {
-    const id = window.setInterval(() => setNow(Date.now()), 1000)
-    return () => window.clearInterval(id)
-  }, [])
-
-  const { days, hours, minutes, seconds } = getCountdown(targetMs, now)
-
   const btnBase = {
     flex: 1,
     minWidth: 0,
@@ -179,9 +120,9 @@ export function PreSave() {
               sx={{
                 m: 0,
                 maxWidth: 380,
-                fontSize: { xs: '0.9rem', md: '0.95rem' },
+                fontSize: { xs: '0.95rem', md: '1.05rem' },
                 lineHeight: 1.5,
-                color: 'rgba(255,255,255,0.62)',
+                color: 'rgba(255,255,255,0.72)',
               }}
             >
               {track.blurb}
@@ -199,31 +140,6 @@ export function PreSave() {
             >
               {track.availableLabel}
             </Typography>
-
-            <Stack
-              direction="row"
-              alignItems="stretch"
-              justifyContent={{ xs: 'center', md: 'flex-start' }}
-              divider={
-                <Box
-                  aria-hidden
-                  sx={{
-                    width: '1px',
-                    alignSelf: 'stretch',
-                    bgcolor: 'rgba(255,255,255,0.2)',
-                    mx: { xs: 1.25, sm: 1.75 },
-                  }}
-                />
-              }
-              sx={{ py: 0.5 }}
-              aria-live="polite"
-              aria-label="Cuenta regresiva al estreno"
-            >
-              <CountdownBlock value={pad2(days)} label="Días" />
-              <CountdownBlock value={pad2(hours)} label="Horas" />
-              <CountdownBlock value={pad2(minutes)} label="Min" />
-              <CountdownBlock value={pad2(seconds)} label="Seg" />
-            </Stack>
 
             <Stack
               direction="row"

@@ -20,6 +20,7 @@ const items = [
   ['hero', 'Inicio'],
   ['estreno', 'Estreno'],
   ['bio', 'Biografía'],
+  ['fechas', 'Fechas'],
   ['lanzamientos', 'Lanzamientos'],
   ['videos', 'Videos'],
   ['envivo', 'En vivo'],
