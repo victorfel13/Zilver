@@ -175,7 +175,11 @@ export function Fechas() {
         Boolean(f.url) &&
         Boolean(showFlyers[f.title]),
     ) ?? null
-  const featuredShow = ticketShow ?? nextShow
+  /** Izquierda: próximo show distinto al de boletos (si hay preventa destacada a la derecha) */
+  const featuredShow =
+    ticketShow && nextShow && nextShow.title === ticketShow.title
+      ? sorted.find((f) => f.kind !== 'lanzamiento' && daysUntil(f.date) >= 0 && f.title !== ticketShow.title) ?? null
+      : nextShow
   const release = sorted.find((f) => f.kind === 'lanzamiento')
   const releaseDays = release ? daysUntil(release.date) : -1
   const showsCount = sorted.filter((f) => f.kind !== 'lanzamiento').length
@@ -296,7 +300,88 @@ export function Fechas() {
             </Box>
           ) : null}
 
-          {release && releaseDays >= -14 ? (
+          {ticketShow ? (
+            <Box
+              sx={{
+                border: `1px solid ${ACCENT}`,
+                bgcolor: '#0b0b0b',
+                p: { xs: 2.5, md: 3.5 },
+                display: 'flex',
+                flexWrap: 'wrap',
+                alignItems: 'flex-start',
+                gap: 3,
+              }}
+            >
+              {showFlyers[ticketShow.title] ? (
+                <Box
+                  component="img"
+                  src={showFlyers[ticketShow.title]}
+                  alt={`Flyer — ${ticketShow.title}`}
+                  sx={{
+                    width: { xs: '100%', sm: 160, md: 180 },
+                    maxWidth: 260,
+                    height: 'auto',
+                    aspectRatio: '4 / 5',
+                    objectFit: 'cover',
+                    display: 'block',
+                    mx: { xs: 'auto', sm: 0 },
+                  }}
+                />
+              ) : null}
+              <Box sx={{ flex: '1 1 220px', minWidth: 0 }}>
+                <Typography sx={{ fontSize: '0.65rem', fontWeight: 700, letterSpacing: '0.24em', color: ACCENT, mb: 1 }}>
+                  PREVENTA · {whenLabel(daysUntil(ticketShow.date))}
+                </Typography>
+                <Typography
+                  component="h3"
+                  sx={{
+                    fontFamily: '"Bebas Neue", sans-serif',
+                    fontSize: { xs: '1.55rem', md: '1.85rem' },
+                    lineHeight: 1.1,
+                    letterSpacing: '0.03em',
+                    mb: 1.25,
+                  }}
+                >
+                  {ticketShow.headline ?? ticketShow.title}
+                </Typography>
+                {ticketShow.description
+                  ? ticketShow.description.split('\n\n').map((p) => (
+                      <Typography
+                        key={p.slice(0, 28)}
+                        sx={{ fontSize: '0.86rem', lineHeight: 1.55, color: 'rgba(255,255,255,0.78)', mb: 1.25 }}
+                      >
+                        {p}
+                      </Typography>
+                    ))
+                  : null}
+                <Typography sx={{ fontSize: '0.8rem', color: 'rgba(255,255,255,0.65)', mb: 2 }}>
+                  {[ticketShow.venue, ticketShow.city, ticketShow.time].filter(Boolean).join(' · ')}
+                </Typography>
+                {ticketShow.url ? (
+                  <Button
+                    href={ticketShow.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    variant="contained"
+                    disableElevation
+                    sx={{
+                      bgcolor: ACCENT,
+                      color: '#000',
+                      borderRadius: '2px',
+                      fontWeight: 800,
+                      letterSpacing: '0.14em',
+                      fontSize: '0.7rem',
+                      px: 3,
+                      py: 1.2,
+                      '&:hover': { bgcolor: '#ffd75e' },
+                    }}
+                  >
+                    {ticketShow.urlLabel ?? 'Comprar boleto'}
+                  </Button>
+                ) : null}
+              </Box>
+            </Box>
+          ) : release && releaseDays >= -14 ? (
             <Box
               sx={{
                 border: `1px solid ${ACCENT}`,

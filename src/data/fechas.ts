@@ -15,6 +15,9 @@ export interface Fecha {
   /** Boletos, pre-save, mapa, fotos… (opcional) */
   url?: string
   urlLabel?: string
+  /** Texto largo para tarjeta destacada */
+  description?: string
+  headline?: string
 }
 
 export const fechas: Fecha[] = [
@@ -41,5 +44,8 @@ export const fechas: Fecha[] = [
     kind: 'show',
     url: 'https://victors.puntofast.com/victors/telequinesis-preventa',
     urlLabel: 'Comprar boleto',
+    headline: 'TELEQUINESIS: La música como una fuerza invisible',
+    description:
+      'Telequinesis es un evento único que reúne el talento y la potencia de tres proyectos imperdibles de la escena independiente: Zilver, Los Teoristas y Lxs Garganthua, navegando entre los sonidos del rock alternativo, el indie y el punk.\n\nLa cita es este 21 de noviembre a las 20:00 hrs en Harvest Hall. Déjate llevar por las vibraciones sonoras que moverán el mosh pit y sacudirán la realidad.',
   },
 ]
